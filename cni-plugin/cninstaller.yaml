@@ -1,0 +1,34 @@
+apiVersion: v1
+data:
+  cni-bash: "#!/bin/bash\n\nnode_name () {\n\tcat /etc/systemd/system/kubelet.service
+    | grep hostname-override | cut -d= -f2 | cut -d' ' -f1\n}\n\nlog=/var/log/cni.log\nconfig=`cat
+    /dev/stdin`\n\necho >> $log\necho \"COMMAND: $CNI_COMMAND\" >> $log\n\ncase $CNI_COMMAND
+    in\nADD)\n    podcidr=$(echo $config | jq -r \".podcidr\")\n    podcidr_gw=$(echo
+    $podcidr | sed \"s:0/24:1:g\")\n    brctl addbr cni0\n    ip link set cni0 up\n
+    \   ip addr add \"${podcidr_gw}/24\" dev cni0\n    \n    # calculate $ip\n    if
+    [ -f /tmp/last_allocated_ip ]; then\n        n=`cat /tmp/last_allocated_ip`\n
+    \   else\n        n=1\n    fi\n    n=$(($n+1))\n    ip=$(echo $podcidr | sed \"s:0/24:$n:g\")\n
+    \   echo $n > /tmp/last_allocated_ip\n\n    mkdir -p /var/run/netns/\n    ln -sfT
+    $CNI_NETNS /var/run/netns/$CNI_CONTAINERID\n    ln -sfT /proc/1/ns/net /var/run/netns/root\n\n
+    \   host_ifname=\"veth$n\"\n    ip netns exec $CNI_CONTAINERID ip link add $CNI_IFNAME
+    type veth peer name $host_ifname\n    ip netns exec $CNI_CONTAINERID ip link set
+    $host_ifname netns root\n    ip link set $host_ifname up\n    ip link set $host_ifname
+    master cni0\n\n    ip netns exec $CNI_CONTAINERID ip link set $CNI_IFNAME up\n
+    \   ip netns exec $CNI_CONTAINERID ip addr add $ip/24 dev $CNI_IFNAME\n    ip
+    netns exec $CNI_CONTAINERID ip route add default via $podcidr_gw\n\n    mac=$(ip
+    netns exec $CNI_CONTAINERID ip link show eth0 | awk '/ether/ {print $2}')\n    address=\"${ip}/24\"\n
+    \   output_template='\n{\n  \"cniVersion\": \"0.3.1\",\n  \"interfaces\": [                                            \n
+    \     {\n          \"name\": \"%s\",\n          \"mac\": \"%s\",                            \n
+    \         \"sandbox\": \"%s\" \n      }\n  ],\n  \"ips\": [\n      {\n          \"version\":
+    \"4\",\n          \"address\": \"%s\",\n          \"gateway\": \"%s\",          \n
+    \         \"interface\": 0 \n      }\n  ]\n}' \n    \n    output=$(printf \"${output_template}\"
+    $CNI_IFNAME $mac $CNI_NETNS $address $podcidr_gw)\n    echo $output >> $log\n
+    \   echo \"$output\"\n    \n;;\n\nDEL)\n    rm -rf /var/run/netns/$CNI_CONTAINERID\n;;\n\nGET)\n;;\n\nVERSION)\necho
+    '{\n  \"cniVersion\": \"0.3.1\", \n  \"supportedVersions\": [ \"0.3.0\", \"0.3.1\",
+    \"0.4.0\" ] \n}'\n;;\n\n*)\n  echo \"Unknown cni command: $CNI_COMMAND\" \n  exit
+    1\n;;\n\nesac\n"
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: cniinstaller
+  namespace: cni-bash-system

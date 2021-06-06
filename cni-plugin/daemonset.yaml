@@ -1,0 +1,105 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: cni-bash
+  namespace: cni-bash-system
+spec:
+  selector:
+    matchLabels:
+      app: test
+  template:
+    metadata:
+      labels:
+        app: test
+    spec:
+      serviceAccountName: cni-bash
+      initContainers:
+      - name: install-cni
+        image: lllamnyp/rebrain-utils
+        env:
+        - name: KUBECONFIG
+          value: /host/etc/cni/net.d/kubeconfig
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        command:
+        - bash
+        args:
+        - -c
+        - |-
+            kubectl config set-cluster dev \
+              --server=https://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT} \
+              --certificate-authority=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+            kubectl config set-context dev --cluster=dev
+            kubectl config set-credentials user \
+              --token=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+            kubectl config set-context dev --user=user
+            kubectl config use-context dev
+            export POD_CIDR=$(kubectl get node ${NODE_NAME} -ojsonpath='{.spec.podCIDR}')
+            cat <<EOF > /host/etc/cni/net.d/10-cni-bash.conf
+            {
+              "cniVersion": "0.3.1",
+              "name": "cni-bash",
+              "type": "cni-bash",
+              "podcidr": "${POD_CIDR}"
+            }
+            EOF
+            cp /cniinit/cniinstaller/cni-bash /host/opt/cni/bin/cni-bash
+        volumeMounts:
+        - name: cniconfig
+          mountPath: /host/etc/cni/net.d
+        - name: cnibin
+          mountPath: /host/opt/cni/bin
+        - name: cniinstaller
+          mountPath: /cniinit/cniinstaller
+        - name: cnidaemon
+          mountPath: /cniinit/cnidaemon
+      containers:
+      - name: cni-daemon
+        image: lllamnyp/rebrain-utils
+        env:
+        - name: KUBECONFIG
+          value: /host/etc/cni/net.d/kubeconfig
+        volumeMounts:
+        - name: cniconfig
+          mountPath: /host/etc/cni/net.d
+        - name: cnibin
+          mountPath: /host/opt/cni/bin
+        - name: cniinstaller
+          mountPath: /cniinit/cniinstaller
+        - name: cnidaemon
+          mountPath: /cniinit/cnidaemon
+      tolerations:
+      - effect: NoSchedule
+        operator: Exists
+      - key: CriticalAddonsOnly
+        operator: Exists
+      - effect: NoExecute
+        operator: Exists
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/controlplane
+        operator: Exists
+      - effect: NoExecute
+        key: node-role.kubernetes.io/etcd
+        operator: Exists
+      hostNetwork: true
+      volumes:
+      - name: cniconfig
+        hostPath:
+          path: /etc/cni/net.d
+          type: DirectoryOrCreate
+      - name: cnibin
+        hostPath:
+          path: /opt/cni/bin
+          type: DirectoryOrCreate
+      - name: cniinstaller
+        configMap:
+          name: cniinstaller
+          defaultMode: 0755
+          optional: true
+      - name: cnidaemon
+        configMap:
+          name: cnidaemon
+          defaultMode: 0755
+          optional: true
