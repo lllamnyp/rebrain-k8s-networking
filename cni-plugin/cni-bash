@@ -19,14 +19,14 @@ ADD)
     ip addr add "${podcidr_gw}/24" dev cni0
     
     # calculate $ip
-    if [ -f /tmp/last_allocated_ip ]; then
-        n=`cat /tmp/last_allocated_ip`
-    else
-        n=1
-    fi
-    n=$(($n+1))
+    for n in {2..254}
+    do
+        if ! grep "^${n}$" /tmp/allocated_ip ; then
+            echo ${n} >> /tmp/allocated_ip`
+            break
+        fi
+    done
     ip=$(echo $podcidr | sed "s:0/24:$n:g")
-    echo $n > /tmp/last_allocated_ip
 
     mkdir -p /var/run/netns/
     ln -sfT $CNI_NETNS /var/run/netns/$CNI_CONTAINERID
@@ -71,6 +71,8 @@ ADD)
 ;;
 
 DEL)
+    ip=$(ip netns exec $CNI_CONTAINERID ip a show eth0 | grep inet | grep eth0 | cut -d/ -f1 | cut -d. -f4)
+    sed -i "/^${number}$/d" /tmp/allocated_ip
     rm -rf /var/run/netns/$CNI_CONTAINERID
 ;;
 
