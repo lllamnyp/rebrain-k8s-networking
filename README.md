@@ -5,6 +5,7 @@ Playlist: [https://youtube.com/playlist?list=PLVsDW8WKTo5FnrmnBBojRd6Pbkc-DuRmr]
 
 Rebrain: [https://rebrainme.com/](https://rebrainme.com/)
 
+Presentation: [Slides](https://docs.google.com/presentation/d/1X8h9w1hdbe70zHCGW6BZlyqyTGMunaUoiMV96ko_y8s/edit?usp=sharing)
 Webinar: TBD
 
 Codez:
