@@ -1,0 +1,20 @@
+#!/bin/bash
+set -x
+get_nodes_cidrs () {
+	kubectl get nodes -ogo-template='{{ range .items }}{{ .spec.podCIDR }}{{ " " }}{{ range .status.addresses }}{{ if eq .type "InternalIP" }}{{ .address }}{{ end }}{{ end }}{{ "\n" }}{{ end }}' | grep -v $NODE_IP
+}
+
+while true
+do
+	get_nodes_cidrs | while read cidr ip 
+	do
+		if [[ "$(echo $ip | cut -d. -f 3)" == "2" ]]
+		then
+			alt_gateway=192.168.1.74
+		else
+			alt_gateway=192.168.2.212
+		fi
+		ip r a $cidr via $ip || ip r a $cidr via $alt_gateway
+	done
+	sleep 10
+done

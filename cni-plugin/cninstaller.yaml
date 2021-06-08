@@ -7,7 +7,7 @@ data:
     $podcidr | sed \"s:0/24:1:g\")\n    brctl addbr cni0\n    ip link set cni0 up\n
     \   ip addr add \"${podcidr_gw}/24\" dev cni0\n    \n    # calculate $ip\n    for
     n in {2..254}\n    do\n        if ! grep \"^${n}$\" /tmp/allocated_ip ; then\n
-    \           echo ${n} >> /tmp/allocated_ip`\n            break\n        fi\n    done\n
+    \           echo ${n} >> /tmp/allocated_ip\n            break\n        fi\n    done\n
     \   ip=$(echo $podcidr | sed \"s:0/24:$n:g\")\n\n    mkdir -p /var/run/netns/\n
     \   ln -sfT $CNI_NETNS /var/run/netns/$CNI_CONTAINERID\n    ln -sfT /proc/1/ns/net
     /var/run/netns/root\n\n    host_ifname=\"veth$n\"\n    ip netns exec $CNI_CONTAINERID

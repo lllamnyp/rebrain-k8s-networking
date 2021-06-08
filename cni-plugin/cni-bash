@@ -22,7 +22,7 @@ ADD)
     for n in {2..254}
     do
         if ! grep "^${n}$" /tmp/allocated_ip ; then
-            echo ${n} >> /tmp/allocated_ip`
+            echo ${n} >> /tmp/allocated_ip
             break
         fi
     done

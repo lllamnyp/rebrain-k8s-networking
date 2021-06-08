@@ -1,0 +1,13 @@
+apiVersion: v1
+data:
+  cnidaemon: "#!/bin/bash\nset -x\nget_nodes_cidrs () {\n\tkubectl get nodes -ogo-template='{{
+    range .items }}{{ .spec.podCIDR }}{{ \" \" }}{{ range .status.addresses }}{{ if
+    eq .type \"InternalIP\" }}{{ .address }}{{ end }}{{ end }}{{ \"\\n\" }}{{ end
+    }}' | grep -v $NODE_IP\n}\n\nwhile true\ndo\n\tget_nodes_cidrs | while read cidr
+    ip \n\tdo\n\t\tif [[ \"$(echo $ip | cut -d. -f 3)\" == \"2\" ]]\n\t\tthen\n\t\t\talt_gateway=192.168.1.74\n\t\telse\n\t\t\talt_gateway=192.168.2.212\n\t\tfi\n\t\tip
+    r a $cidr via $ip || ip r a $cidr via $alt_gateway\n\tdone\n\tsleep 10\ndone\n"
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: cnidaemon
+  namespace: cni-bash-system

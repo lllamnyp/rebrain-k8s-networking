@@ -55,12 +55,20 @@ spec:
           mountPath: /cniinit/cniinstaller
         - name: cnidaemon
           mountPath: /cniinit/cnidaemon
+        securityContext:
+          privileged: true
       containers:
       - name: cni-daemon
         image: lllamnyp/rebrain-utils
+        command:
+        - /cniinit/cnidaemon/cnidaemon
         env:
         - name: KUBECONFIG
           value: /host/etc/cni/net.d/kubeconfig
+        - name: NODE_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
         volumeMounts:
         - name: cniconfig
           mountPath: /host/etc/cni/net.d
@@ -70,6 +78,8 @@ spec:
           mountPath: /cniinit/cniinstaller
         - name: cnidaemon
           mountPath: /cniinit/cnidaemon
+        securityContext:
+          privileged: true
       tolerations:
       - effect: NoSchedule
         operator: Exists
@@ -97,9 +107,7 @@ spec:
         configMap:
           name: cniinstaller
           defaultMode: 0755
-          optional: true
       - name: cnidaemon
         configMap:
           name: cnidaemon
           defaultMode: 0755
-          optional: true
