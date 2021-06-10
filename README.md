@@ -6,13 +6,20 @@ Playlist: [https://youtube.com/playlist?list=PLVsDW8WKTo5FnrmnBBojRd6Pbkc-DuRmr]
 Rebrain: [https://rebrainme.com/](https://rebrainme.com/)
 
 Presentation: [Slides](https://docs.google.com/presentation/d/1X8h9w1hdbe70zHCGW6BZlyqyTGMunaUoiMV96ko_y8s/edit?usp=sharing)
-Webinar: TBD
+
+Webinar: Contact me via telegram for link
 
 Codez:
 
-- [https://github.com/ciscodevnet/netdevops-live-0213/](https://github.com/ciscodevnet/netdevops-live-0213/)
-- [https://github.com/eranyanay/cni-from-scratch](https://github.com/eranyanay/cni-from-scratch)
-- [https://github.com/kristenjacobs/container-networking/](https://github.com/kristenjacobs/container-networking/)
+- [Cisco Netdevops talk (github)](https://github.com/ciscodevnet/netdevops-live-0213/)
+- [Cisco Netdevops talk (youtube)](https://www.youtube.com/watch?v=z-ITjDQT7DU&list=PLVsDW8WKTo5FnrmnBBojRd6Pbkc-DuRmr&index=1)
+- [CNI in bash from scratch (github)](https://github.com/eranyanay/cni-from-scratch)
+- [CNI in bash from scratch (youtube)](https://www.youtube.com/watch?v=zmYxdtFzK6s&list=PLVsDW8WKTo5FnrmnBBojRd6Pbkc-DuRmr&index=15)
+- [Container networking from scratch (github)](https://github.com/kristenjacobs/container-networking/)
+- [Container networking from scratch (youtube)](https://www.youtube.com/watch?v=6v_BDHIgOY8&list=PLVsDW8WKTo5FnrmnBBojRd6Pbkc-DuRmr&index=16)
+- [Kubernetes Networking: How to Write Your Own CNI Plug-in with Bash](https://www.altoros.com/blog/kubernetes-networking-writing-your-own-simple-cni-plug-in-with-bash/)
+- [Container networking is simple!](https://iximiuz.com/en/posts/container-networking-is-simple/)
+- [Container networking is simple! (in Russian)](https://habr.com/ru/company/timeweb/blog/558612/)
 
 ## Multiarch build on linux
 
