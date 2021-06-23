@@ -20,6 +20,7 @@ Codez:
 - [Kubernetes Networking: How to Write Your Own CNI Plug-in with Bash](https://www.altoros.com/blog/kubernetes-networking-writing-your-own-simple-cni-plug-in-with-bash/)
 - [Container networking is simple!](https://iximiuz.com/en/posts/container-networking-is-simple/)
 - [Container networking is simple! (in Russian)](https://habr.com/ru/company/timeweb/blog/558612/)
+- [Foo over UDP](https://lwn.net/Articles/614348/)
 
 ## Multiarch build on linux
 
